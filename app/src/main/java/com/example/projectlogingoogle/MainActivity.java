@@ -1,5 +1,6 @@
 package com.example.projectlogingoogle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 public class MainActivity extends AppCompatActivity {
@@ -51,6 +53,10 @@ public class MainActivity extends AppCompatActivity {
             signIn();
         });
 
+        btnLogout.setOnClickListener(view -> {
+            signOut();
+        });
+
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
@@ -83,17 +89,26 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, RC_SIGN_IN);
     }
 
+    private void signOut() {
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        updateUI(null);
+                    }
+                });
+    }
 
     private void updateUI(GoogleSignInAccount account) {
         if (account == null) {
             signInButton.setEnabled(true);
             btnLogout.setEnabled(false);
+            txtEmail.setText("Chưa login!");
+            return;
         }
 
-        System.out.println("account " + account.getEmail());
+        signInButton.setEnabled(false);
+        btnLogout.setEnabled(true);
         txtEmail.setText(account.getEmail().toLowerCase());
-
-
-
     }
 }
